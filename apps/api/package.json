@@ -1,0 +1,26 @@
+{
+  "name": "@flash/api",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Flash backend: Node.js handlers for AWS Lambda + API Gateway.",
+  "type": "module",
+  "scripts": {
+    "dev": "node --env-file-if-exists=.env --watch src/local/server.js",
+    "dev:docker": "node --env-file=env/docker.env src/local/createTable.js && node --env-file=env/docker.env --env-file-if-exists=.env --watch src/local/server.js",
+    "db:create": "node --env-file=env/docker.env src/local/createTable.js",
+    "lint": "eslint .",
+    "test": "node --test \"test/**/*.test.js\"",
+    "test:integration": "node --env-file=env/docker.env --test --test-concurrency=1 \"test-integration/**/*.test.js\""
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.1158.0",
+    "@aws-sdk/client-s3": "^3.1158.0",
+    "@aws-sdk/client-secrets-manager": "^3.1158.0",
+    "@aws-sdk/client-sesv2": "^3.1158.0",
+    "@aws-sdk/lib-dynamodb": "^3.1158.0",
+    "@aws-sdk/s3-presigned-post": "^3.1158.0",
+    "@flash/shared": "workspace:*",
+    "bcryptjs": "^3.0.3",
+    "redis": "^6.3.0"
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "name": "flash",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Flash: public online space for a photography community.",
+  "type": "module",
+  "packageManager": "bun@1.4.4",
+  "engines": {
+    "node": ">=22"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "bun run --filter '@flash/api' --filter '@flash/web' dev",
+    "dev:api": "bun run --filter '@flash/api' dev",
+    "dev:web": "bun run --filter '@flash/web' dev",
+    "dev:docker": "bun run --filter '@flash/api' dev:docker",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "test:integration": "bun run --filter '@flash/api' test:integration",
+    "infra:build": "bun infra/scripts/build-lambdas.mjs",
+    "build": "bun run --filter '@flash/web' build",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "bun run --filter '*' test",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^21.2.4",
+    "@commitlint/config-conventional": "^21.2.4",
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.13.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.7",
+    "globals": "^17.13.0",
+    "husky": "^9.1.7",
+    "prettier": "^3.9.10"
+  }
+}

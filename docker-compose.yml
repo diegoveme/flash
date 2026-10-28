@@ -1,0 +1,21 @@
+# Optional local infrastructure. Mirrors the AWS data services:
+#   - DynamoDB Local  -> Amazon DynamoDB
+#   - Valkey          -> Amazon ElastiCache (Valkey / Redis OSS)
+# Start with `bun run docker:up`, then `bun run dev:docker`.
+services:
+  dynamodb:
+    image: amazon/dynamodb-local:latest
+    command: ['-jar', 'DynamoDBLocal.jar', '-sharedDb', '-dbPath', '/home/dynamodblocal/data']
+    ports:
+      - '8000:8000'
+    volumes:
+      - dynamodb-data:/home/dynamodblocal/data
+    user: root
+
+  valkey:
+    image: valkey/valkey:8-alpine
+    ports:
+      - '6379:6379'
+
+volumes:
+  dynamodb-data:

@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+.aws-sam/
+coverage/
+
+# Local runtime data (memory DB snapshot, local object storage, email outbox)
+.local/
+
+# Environment files (keep only the examples)
+.env
+.env.*
+!.env.example
+
+# Logs and OS files
+*.log
+.DS_Store
+Thumbs.db
+
+# Editor folders
+.vscode/
+.idea/

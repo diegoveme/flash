@@ -1,0 +1,6 @@
+# Keep LF everywhere (Prettier, EditorConfig and the husky shell hooks expect it).
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.zip binary
