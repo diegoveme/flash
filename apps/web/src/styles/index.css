@@ -1,0 +1,141 @@
+@import 'tailwindcss';
+
+/*
+ * Design tokens from the "Flash Minimalist Gallery" design system.
+ * Components use these token classes (bg-surface, text-ink, border-line...)
+ * instead of raw hex values.
+ */
+@theme {
+  --font-headline: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-body: 'Geist', system-ui, -apple-system, sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, monospace;
+
+  /* Surfaces */
+  --color-canvas: #ffffff;
+  --color-surface: #f8f9fa;
+  --color-surface-raised: #f1f3f5;
+
+  /* Text */
+  --color-ink: #0f172a;
+  --color-body: #1e293b;
+  --color-subtle: #434655;
+  --color-muted: #64748b;
+  --color-faint: #94a3b8;
+
+  /* Borders */
+  --color-line: #e2e8f0;
+  --color-line-strong: #cbd5e1;
+
+  /* Accent */
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  --color-primary-soft: #dbe1ff;
+
+  /* Feedback */
+  --color-danger: #ba1a1a;
+  --color-danger-hover: #93000a;
+  --color-danger-soft: #ffdad6;
+  --color-inspire: #bc4800;
+  --color-inspire-soft: #ffdbcd;
+  --color-success: #047857;
+  --color-success-strong: #065f46;
+  --color-success-soft: #ecfdf5;
+  --color-success-line: #a7f3d0;
+
+  /* Elevation */
+  --shadow-card: 0 2px 4px rgba(15, 23, 42, 0.02);
+  --shadow-float: 0 8px 24px -4px rgba(15, 23, 42, 0.06), 0 2px 6px -1px rgba(15, 23, 42, 0.03);
+  --shadow-modal: 0 20px 40px -8px rgba(15, 23, 42, 0.12);
+
+  /* Motion */
+  --animate-fade-in: fade-in 200ms ease-out;
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+@layer base {
+  body {
+    font-family: var(--font-body);
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-headline);
+    letter-spacing: -0.02em;
+  }
+
+  ::selection {
+    background-color: var(--color-primary);
+    color: #ffffff;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  /* Inputs: white surface, 1px border, 4px radius, blue halo on focus. */
+  .field {
+    width: 100%;
+    font-size: 0.75rem;
+    background-color: var(--color-canvas);
+    border: 1px solid var(--color-line);
+    border-radius: 0.25rem;
+    color: var(--color-ink);
+    transition:
+      border-color 150ms,
+      box-shadow 150ms;
+  }
+
+  .field::placeholder {
+    color: var(--color-faint);
+  }
+
+  .field:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  }
+
+  .field[aria-invalid='true'] {
+    border-color: var(--color-danger);
+  }
+}
+
+/* Thin scrollbar matching the gallery style. */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-surface);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-line-strong);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-faint);
+}
