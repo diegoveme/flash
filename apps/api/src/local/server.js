@@ -35,17 +35,16 @@ const compiledRoutes = routes.map((route) => {
   return { ...route, regex: new RegExp(`^${pattern}$`), names };
 });
 
-const handlerCache = new Map();
-function loadHandler(name) {
-  if (!handlerCache.has(name)) {
-    const url = new URL(`../interfaces/http/handlers/${name}.js`, import.meta.url);
-    handlerCache.set(
-      name,
-      import(url.href).then((module) => module.handler),
-    );
-  }
-  return handlerCache.get(name);
-}
+// Every handler is imported before listening. On Windows, `node --watch` treats the
+// first read of a file as a change, so lazy imports restarted the server mid-request.
+const handlers = new Map(
+  await Promise.all(
+    routes.map(async (route) => {
+      const url = new URL(`../interfaces/http/handlers/${route.handler}.js`, import.meta.url);
+      return [route.handler, (await import(url.href)).handler];
+    }),
+  ),
+);
 
 function matchRoute(method, pathname) {
   for (const route of compiledRoutes) {
@@ -174,7 +173,7 @@ const server = http.createServer(async (request, response) => {
     if (body === null)
       return sendJsonError(response, 413, 'PAYLOAD_TOO_LARGE', 'Request body too large.');
 
-    const handler = await loadHandler(found.route.handler);
+    const handler = handlers.get(found.route.handler);
     const result = await handler(toApiGatewayEvent(request, url, found.route, found.params, body));
     send(response, result);
   } catch (error) {
