@@ -4,8 +4,11 @@ import path from 'node:path';
 import { Readable } from 'node:stream';
 import { IMAGE_MAX_BYTES } from '@flash/shared';
 import { getContainer } from '../bootstrap/container.js';
-import { routes } from '../interfaces/http/routes.js';
+// Static imports: on Windows, `node --watch` treats the first read of a file as a
+// change, so lazily imported handlers restarted the server mid-request.
+import { handlers } from '../interfaces/http/handlers/index.js';
 import { corsHeaders } from '../interfaces/http/responses.js';
+import { matchRoute } from '../interfaces/http/router.js';
 import { logger } from '../lib/logger.js';
 
 /*
@@ -25,40 +28,6 @@ const MULTIPART_OVERHEAD_BYTES = 64 * 1024;
 const container = getContainer();
 const { config, storage } = container;
 const cors = corsHeaders(config.http.corsOrigin);
-
-const compiledRoutes = routes.map((route) => {
-  const names = [];
-  const pattern = route.path.replace(/\{(\w+)\}/g, (_, name) => {
-    names.push(name);
-    return '([^/]+)';
-  });
-  return { ...route, regex: new RegExp(`^${pattern}$`), names };
-});
-
-// Every handler is imported before listening. On Windows, `node --watch` treats the
-// first read of a file as a change, so lazy imports restarted the server mid-request.
-const handlers = new Map(
-  await Promise.all(
-    routes.map(async (route) => {
-      const url = new URL(`../interfaces/http/handlers/${route.handler}.js`, import.meta.url);
-      return [route.handler, (await import(url.href)).handler];
-    }),
-  ),
-);
-
-function matchRoute(method, pathname) {
-  for (const route of compiledRoutes) {
-    if (route.method !== method) continue;
-    const match = route.regex.exec(pathname);
-    if (match) {
-      const params = Object.fromEntries(
-        route.names.map((name, index) => [name, decodeURIComponent(match[index + 1])]),
-      );
-      return { route, params };
-    }
-  }
-  return null;
-}
 
 async function readBody(request, limit) {
   const chunks = [];
@@ -173,7 +142,7 @@ const server = http.createServer(async (request, response) => {
     if (body === null)
       return sendJsonError(response, 413, 'PAYLOAD_TOO_LARGE', 'Request body too large.');
 
-    const handler = handlers.get(found.route.handler);
+    const handler = handlers[found.route.handler];
     const result = await handler(toApiGatewayEvent(request, url, found.route, found.params, body));
     send(response, result);
   } catch (error) {
