@@ -98,6 +98,8 @@ bun run dev:web       # in a second terminal
 | `bun run format`           | Format the whole repository                          |
 | `bun run build`            | Build the web app for production                     |
 | `bun run infra:build`      | Bundle every Lambda function for deployment          |
+| `bun run deploy:lab`       | Deploy to an AWS Academy Learner Lab                 |
+| `bun run teardown:lab`     | Remove the Learner Lab deployment                    |
 
 ## Project structure
 
@@ -137,6 +139,8 @@ and hidden posts never being returned by the feed, profiles or detail routes.
 
 ## Deployment
 
+### AWS account
+
 The `infra/` folder contains an AWS SAM template that provisions the API, the Lambda functions
 (each with its own least-privilege IAM role), DynamoDB, S3, CloudFront, ElastiCache and the
 Secrets Manager secret. See [`infra/README.md`](infra/README.md) for prerequisites, parameters
@@ -145,6 +149,18 @@ and step by step instructions.
 ```bash
 bun run infra:build
 cd infra && sam deploy --guided
+```
+
+### AWS Academy Learner Lab
+
+Lab accounts can not create IAM roles, so a reduced setup is deployed with the AWS CLI: one
+Lambda with a function URL using the lab's `LabRole`, DynamoDB, and S3 for images and the web
+app. See [`infra/learner-lab/README.md`](infra/learner-lab/README.md) for the differences and
+for how to load the lab credentials.
+
+```bash
+bun run deploy:lab     # prints the web app and API URLs
+bun run teardown:lab   # removes everything from the lab
 ```
 
 ## Configuration
