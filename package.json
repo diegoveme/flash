@@ -21,6 +21,8 @@
     "docker:down": "docker compose down",
     "test:integration": "bun run --filter '@flash/api' test:integration",
     "infra:build": "bun infra/scripts/build-lambdas.mjs",
+    "deploy:lab": "bash infra/learner-lab/deploy.sh",
+    "teardown:lab": "bash infra/learner-lab/teardown.sh",
     "build": "bun run --filter '@flash/web' build",
     "lint": "eslint .",
     "format": "prettier --write .",
