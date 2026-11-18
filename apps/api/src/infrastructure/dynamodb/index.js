@@ -10,7 +10,8 @@ import { createDynamoUsersRepository } from './usersRepository.js';
  * @param {{ region: string, endpoint?: string, table: string }} options
  */
 export function createDynamoRepositories({ region, endpoint, table }) {
-  const deps = { client: createDocumentClient({ region, endpoint }), table };
+  const { client, close } = createDocumentClient({ region, endpoint });
+  const deps = { client, table };
   return {
     users: createDynamoUsersRepository(deps),
     sessions: createDynamoSessionsRepository(deps),
@@ -18,5 +19,6 @@ export function createDynamoRepositories({ region, endpoint, table }) {
     comments: createDynamoCommentsRepository(deps),
     reactions: createDynamoReactionsRepository(deps),
     notifications: createDynamoNotificationsRepository(deps),
+    close,
   };
 }

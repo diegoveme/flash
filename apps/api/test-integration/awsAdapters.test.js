@@ -57,7 +57,10 @@ describe(
       };
     });
 
-    after(() => rm(dataDir, { recursive: true, force: true }));
+    after(async () => {
+      await c.close();
+      await rm(dataDir, { recursive: true, force: true });
+    });
 
     it('enforces unique usernames and emails in one transaction', async () => {
       await signUp(c, { username: 'unique_one', email: 'unique@example.com' });

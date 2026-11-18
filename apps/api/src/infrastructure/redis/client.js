@@ -31,11 +31,21 @@ export function createRedisConnector(config, secrets, logger) {
     return client;
   }
 
-  return function getClient() {
+  function getClient() {
     connecting ??= connect().catch((error) => {
       connecting = null;
       throw error;
     });
     return connecting;
-  };
+  }
+
+  /** Closes the connection, if one was opened, so the process can exit. */
+  async function close() {
+    const pending = connecting;
+    connecting = null;
+    const client = await pending?.catch(() => null);
+    if (client?.isOpen) await client.close();
+  }
+
+  return { getClient, close };
 }

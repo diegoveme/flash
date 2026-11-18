@@ -30,9 +30,10 @@ function buildRepositories(config) {
 function buildPasswordResetStore(config, { clock, logger }) {
   if (config.drivers.cache === 'redis') {
     const secrets = createSecretsProvider({ region: config.aws.region });
-    return createRedisPasswordResetStore(createRedisConnector(config, secrets, logger));
+    const { getClient, close } = createRedisConnector(config, secrets, logger);
+    return { store: createRedisPasswordResetStore(getClient), close };
   }
-  return createMemoryPasswordResetStore({ clock });
+  return { store: createMemoryPasswordResetStore({ clock }) };
 }
 
 function buildStorage(config, { clock }) {
@@ -68,20 +69,29 @@ function buildMailer(config, { clock, logger }) {
 export function buildContainer(config, overrides = {}) {
   const clock = overrides.clock ?? systemClock;
   const logger = overrides.logger ?? defaultLogger;
+  const { close: closeRepositories, ...repositories } = buildRepositories(config);
+  const passwordResets = buildPasswordResetStore(config, { clock, logger });
 
   const deps = {
     config,
     clock,
     logger,
-    ...buildRepositories(config),
-    passwordResets: buildPasswordResetStore(config, { clock, logger }),
+    ...repositories,
+    passwordResets: passwordResets.store,
     storage: buildStorage(config, { clock }),
     mailer: buildMailer(config, { clock, logger }),
     passwordHasher: createBcryptPasswordHasher({ cost: config.security.bcryptCost }),
     ...overrides,
   };
 
-  return { ...deps, useCases: createUseCases(deps) };
+  const closers = [closeRepositories, passwordResets.close].filter(Boolean);
+
+  return {
+    ...deps,
+    useCases: createUseCases(deps),
+    /** Releases open connections (DynamoDB, Redis). Lambda never needs it; tests and scripts do. */
+    close: () => Promise.all(closers.map((close) => close())).then(() => undefined),
+  };
 }
 
 let current = null;

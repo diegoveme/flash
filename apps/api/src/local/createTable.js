@@ -18,8 +18,14 @@ export async function ensureTable(config) {
     region: config.aws.region,
     endpoint: config.dynamodb.endpoint,
   });
-  const TableName = config.dynamodb.table;
+  try {
+    return await createIfMissing(client, config.dynamodb.table);
+  } finally {
+    client.destroy();
+  }
+}
 
+async function createIfMissing(client, TableName) {
   try {
     await client.send(new DescribeTableCommand({ TableName }));
     return { created: false };
